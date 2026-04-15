@@ -1,0 +1,24 @@
+{% set mx_badge = {'ok':('bg-green-100 text-green-800','✓ OK'),'catch_all':('bg-yellow-100 text-yellow-800','~ info@'),'no_mx':('bg-red-100 text-red-800','✗ Ingen MX'),'invalid':('bg-slate-200 text-slate-600','✗ Ogiltig'),'error':('bg-slate-200 text-slate-600','? DNS-fel')} %}
+{% set statuses = ['Ej kontaktad','Ringt – inget svar','Mail skickat','Återkoppling bokad','Möte/demo bokat','Tackat nej','Fel kontaktperson'] %}
+<tr id="lead-{{ lead.id }}" class="border-t hover:bg-slate-50 align-top">
+  <td class="px-2 py-2 text-slate-500">{{ lead.id }}</td>
+  <td class="px-2 py-2 font-medium">{{ lead.company_name }}</td>
+  <td class="px-2 py-2">{{ lead.revenue }}</td>
+  <td class="px-2 py-2">{{ lead.city }}</td>
+  <td class="px-2 py-2 text-xs">{{ lead.email }}</td>
+  <td class="px-2 py-2">
+    {% set b = mx_badge.get(lead.mx_status, ('bg-slate-200 text-slate-600','?')) %}
+    <span class="px-2 py-0.5 rounded text-xs {{ b[0] }}" title="{{ lead.mx_detail }}">{{ b[1] }}</span>
+  </td>
+  <td class="px-2 py-2">{{ lead.contact_name }}<br><span class="text-xs text-slate-500">{{ lead.contact_role }}</span></td>
+  <td class="px-2 py-2">{% if lead.linkedin_url %}<a href="{{ lead.linkedin_url }}" target="_blank" class="text-blue-600 hover:underline text-xs">Kolla →</a>{% endif %}</td>
+  <td class="px-2 py-2 text-xs">{{ lead.phone }}</td>
+  <td class="px-2 py-2">
+    <select hx-post="/leads/{{ lead.id }}/status" hx-trigger="change" hx-target="#lead-{{ lead.id }}" hx-swap="outerHTML" name="call_status" class="border rounded text-xs px-1 py-1">
+      {% for s in statuses %}<option {% if s == lead.call_status %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </td>
+  <td class="px-2 py-2 text-xs min-w-[120px]">
+    <span hx-post="/leads/{{ lead.id }}/comment-edit" hx-swap="outerHTML" class="cursor-pointer text-slate-700">{{ lead.comment or '—' }}</span>
+  </td>
+</tr>

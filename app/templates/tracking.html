@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex justify-between items-start mb-4">
+  <div>
+    <a href="/campaigns/{{ campaign.id }}" class="text-sm text-slate-500 hover:underline">← {{ campaign.name }}</a>
+    <h1 class="text-2xl font-bold mt-1">Spårning</h1>
+  </div>
+  <form hx-post="/campaigns/{{ campaign.id }}/tracking/sync" hx-target="#sync-result" hx-swap="innerHTML">
+    <button class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Synka Gmail</button>
+  </form>
+</div>
+<div id="sync-result" class="mb-4"></div>
+
+<div class="grid grid-cols-5 gap-3 mb-6">
+  <div class="bg-white p-3 rounded shadow-sm"><div class="text-xs text-slate-500">Skickade</div><div class="text-2xl font-bold">{{ sent_count }}</div></div>
+  <div class="bg-white p-3 rounded shadow-sm"><div class="text-xs text-slate-500">Svar</div><div class="text-2xl font-bold text-green-700">{{ replied|length }}</div></div>
+  <div class="bg-white p-3 rounded shadow-sm"><div class="text-xs text-slate-500">Inväntar</div><div class="text-2xl font-bold">{{ waiting|length }}</div></div>
+  <div class="bg-white p-3 rounded shadow-sm"><div class="text-xs text-slate-500">Uppföljning</div><div class="text-2xl font-bold text-orange-600">{{ needs_fu|length }}</div></div>
+  <div class="bg-white p-3 rounded shadow-sm"><div class="text-xs text-slate-500">Kalla</div><div class="text-2xl font-bold text-slate-500">{{ cold|length }}</div></div>
+</div>
+
+{% if needs_fu %}
+<h2 class="font-semibold mb-2">Behöver uppföljning</h2>
+<div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+<table class="w-full text-sm">
+  <thead class="bg-slate-100"><tr>
+    <th class="text-left px-3 py-2">Bolag</th>
+    <th class="text-left px-3 py-2">E-post</th>
+    <th class="text-right px-3 py-2">Dagar</th>
+    <th class="text-right px-3 py-2">Försök</th>
+    <th class="px-3 py-2"></th>
+  </tr></thead>
+  <tbody>
+    {% for d, days in needs_fu %}
+    <tr class="border-t">
+      <td class="px-3 py-2">{{ d.lead.company_name }}</td>
+      <td class="px-3 py-2 text-xs">{{ d.lead.email }}</td>
+      <td class="px-3 py-2 text-right">{{ days }}</td>
+      <td class="px-3 py-2 text-right">#{{ d.attempt }}</td>
+      <td class="px-3 py-2">
+        <span id="fu-{{ d.id }}">
+          <button hx-post="/drafts/{{ d.id }}/followup" hx-target="#fu-{{ d.id }}" hx-swap="innerHTML" class="px-2 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700">Skapa uppföljning</button>
+        </span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+{% if replied %}
+<h2 class="font-semibold mb-2">Fått svar</h2>
+<div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+<table class="w-full text-sm">
+  <thead class="bg-slate-100"><tr>
+    <th class="text-left px-3 py-2">Bolag</th>
+    <th class="text-left px-3 py-2">E-post</th>
+    <th class="text-left px-3 py-2">Svarade</th>
+    <th class="px-3 py-2"></th>
+  </tr></thead>
+  <tbody>
+    {% for d in replied %}
+    <tr class="border-t">
+      <td class="px-3 py-2">{{ d.lead.company_name }}</td>
+      <td class="px-3 py-2 text-xs">{{ d.lead.email }}</td>
+      <td class="px-3 py-2 text-xs">{{ d.replied_at.strftime('%Y-%m-%d') if d.replied_at else '—' }}</td>
+      <td class="px-3 py-2"><a href="https://mail.google.com/mail/u/0/#inbox/{{ d.gmail_thread_id }}" target="_blank" class="text-blue-600 underline text-xs">Öppna i Gmail →</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+{% if waiting %}
+<h2 class="font-semibold mb-2 text-slate-600">Inväntar svar</h2>
+<div class="bg-white rounded-lg shadow-sm p-4 text-sm space-y-1">
+  {% for d, days in waiting %}
+  <div>{{ d.lead.company_name }} — {{ days }} dag(ar)</div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

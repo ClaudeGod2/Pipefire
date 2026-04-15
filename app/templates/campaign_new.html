@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+<h1 class="text-2xl font-bold mb-6">Ny kampanj</h1>
+
+<form method="post" action="/campaigns" class="bg-white rounded-lg shadow-sm p-6 space-y-5">
+  <div>
+    <label class="block text-sm font-medium mb-1">Kampanjnamn</label>
+    <input name="name" required class="w-full border rounded px-3 py-2" placeholder="Gym-bolag maj 2025">
+  </div>
+
+  <div x-data="{ open: false }">
+    <label class="block text-sm font-medium mb-1">SNI-kod (bransch)</label>
+    <input name="sni_prefix" required class="w-full border rounded px-3 py-2" placeholder="9313">
+    <button type="button" @click="open=!open" class="text-xs text-blue-600 mt-1 underline">Vanliga SNI-koder</button>
+    <div x-show="open" x-cloak class="mt-2 p-3 bg-slate-50 text-xs rounded space-y-1">
+      <div><code>47</code> — Detaljhandel</div>
+      <div><code>56</code> — Restaurang / Café</div>
+      <div><code>561</code> — Restaurang (snävare)</div>
+      <div><code>62</code> — IT-tjänster</div>
+      <div><code>68</code> — Fastighet</div>
+      <div><code>8610</code> — Sjukhus / vård</div>
+      <div><code>9313</code> — Gym / träningsanläggningar</div>
+      <div><code>96</code> — Personliga tjänster</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Min storleksklass</label>
+      <select name="min_klass" class="w-full border rounded px-3 py-2">
+        {% for k, lbl in [(0,'0 — 0 anst'),(1,'1 — 1–4'),(2,'2 — 5–9'),(3,'3 — 10–19'),(4,'4 — 20–49'),(5,'5 — 50–99'),(6,'6 — 100–199'),(7,'7 — 200–499'),(8,'8 — 500–999'),(9,'9 — 1000+')] %}
+          <option value="{{ k }}" {% if k==3 %}selected{% endif %}>{{ lbl }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">Max storleksklass</label>
+      <select name="max_klass" class="w-full border rounded px-3 py-2">
+        {% for k, lbl in [(0,'0 — 0 anst'),(1,'1 — 1–4'),(2,'2 — 5–9'),(3,'3 — 10–19'),(4,'4 — 20–49'),(5,'5 — 50–99'),(6,'6 — 100–199'),(7,'7 — 200–499'),(8,'8 — 500–999'),(9,'9 — 1000+')] %}
+          <option value="{{ k }}" {% if k==9 %}selected{% endif %}>{{ lbl }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Min omsättning (MSEK)</label>
+      <input type="number" name="min_msek" value="0" min="0" class="w-full border rounded px-3 py-2">
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">Max antal leads</label>
+      <input type="number" name="max_bolag" value="50" min="1" max="500" class="w-full border rounded px-3 py-2">
+    </div>
+  </div>
+
+  <div class="pt-2 flex gap-2">
+    <button class="bg-orange-600 text-white px-5 py-2 rounded hover:bg-orange-700 font-medium">Starta</button>
+    <a href="/" class="px-5 py-2 border rounded hover:bg-slate-50">Avbryt</a>
+  </div>
+</form>
+</div>
+{% endblock %}

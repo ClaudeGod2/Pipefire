@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.env
+.DS_Store
+data/pipefire.db
+data/pipefire.db-journal
+data/scb_cache.txt
+data/token.json
+data/exports/
+*.log
+.idea/
+.vscode/
